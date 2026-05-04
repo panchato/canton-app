@@ -6,8 +6,13 @@ import { deleteProducto, updateFoto } from "./actions";
 import { supabase } from "@/lib/supabase";
 import type { Producto } from "@/lib/supabase";
 
-const fmt = (n: number | null, prefix: string) =>
-  n != null ? `${prefix}${n.toLocaleString("es-CL")}` : null;
+const fmtPrice = (n: number | null, prefix: string) =>
+  n != null
+    ? `${prefix}${n.toLocaleString("es-CL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : null;
+
+const fmtMoq = (n: number | null) =>
+  n != null ? n.toLocaleString("es-CL") : null;
 
 function ProductoCard({ p }: { p: Producto }) {
   const [uploading, setUploading] = useState(false);
@@ -112,16 +117,16 @@ function ProductoCard({ p }: { p: Producto }) {
           <p className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">{p.producto}</p>
 
           <div className="flex items-center gap-2 flex-wrap mt-0.5">
-            {fmt(p.precio_usd, "US$") && (
-              <span className="text-blue-600 font-bold text-sm">{fmt(p.precio_usd, "US$")}</span>
+            {fmtPrice(p.precio_usd, "US$") && (
+              <span className="text-blue-600 font-bold text-sm">{fmtPrice(p.precio_usd, "US$")}</span>
             )}
-            {p.moq != null && (
-              <span className="text-gray-400 text-xs">MOQ {p.moq.toLocaleString("es-CL")}</span>
+            {fmtMoq(p.moq) && (
+              <span className="text-gray-400 text-xs">MOQ {fmtMoq(p.moq)}</span>
             )}
           </div>
 
-          {fmt(p.precio_ref_clp, "$") && (
-            <p className="text-gray-500 text-xs">Ref. CLP: {fmt(p.precio_ref_clp, "$")}</p>
+          {fmtPrice(p.precio_ref_clp, "$") && (
+            <p className="text-gray-500 text-xs">Ref. CLP: {fmtPrice(p.precio_ref_clp, "$")}</p>
           )}
 
           {p.proveedor && (
