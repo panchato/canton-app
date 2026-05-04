@@ -2,20 +2,50 @@
 
 import { useState, useRef } from "react";
 import { addProducto } from "./actions";
+import { supabase } from "@/lib/supabase";
 
 export default function AddProductoForm({ tipos }: { tipos: string[] }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : null);
+  }
+
+  async function uploadImage(file: File): Promise<string> {
+    const ext = file.name.split(".").pop();
+    const path = `${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(path, file, { upsert: true });
+    if (error) throw new Error(error.message);
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    return data.publicUrl;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!formRef.current) return;
     setLoading(true);
-    await addProducto(new FormData(formRef.current));
-    formRef.current.reset();
-    setLoading(false);
-    setOpen(false);
+    try {
+      const fd = new FormData(formRef.current);
+      if (imageFile) {
+        const url = await uploadImage(imageFile);
+        fd.set("foto", url);
+      }
+      await addProducto(fd);
+      formRef.current.reset();
+      setImageFile(null);
+      setImagePreview(null);
+      setOpen(false);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const field = (name: string, label: string, type = "text", required = false) => (
@@ -86,6 +116,21 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
               {field("email", "Email", "email")}
               {field("sales", "Contacto ventas")}
               {field("sku", "SKU")}
+
+              {/* Image upload */}
+              <div className="col-span-2">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Foto</label>
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer flex items-center gap-2 border border-dashed border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 transition-colors">
+                    <span>📷</span>
+                    <span>{imageFile ? imageFile.name : "Elegir imagen..."}</span>
+                    <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                  </label>
+                  {imagePreview && (
+                    <img src={imagePreview} alt="preview" className="h-16 w-16 object-cover rounded-lg border border-gray-200" />
+                  )}
+                </div>
+              </div>
 
               <div className="col-span-2 flex justify-end gap-3 pt-2 border-t border-gray-100 mt-2">
                 <button
