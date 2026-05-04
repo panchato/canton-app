@@ -19,13 +19,12 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
 
   async function uploadImage(file: File): Promise<string> {
     const ext = file.name.split(".").pop();
-    const path = `${Date.now()}.${ext}`;
+    const path = `new-${Date.now()}.${ext}`;
     const { error } = await supabase.storage
       .from("product-images")
       .upload(path, file, { upsert: true });
     if (error) throw new Error(error.message);
-    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    return data.publicUrl;
+    return supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,8 +34,7 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
     try {
       const fd = new FormData(formRef.current);
       if (imageFile) {
-        const url = await uploadImage(imageFile);
-        fd.set("foto", url);
+        fd.set("foto", await uploadImage(imageFile));
       }
       await addProducto(fd);
       formRef.current.reset();
@@ -50,13 +48,13 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
 
   const field = (name: string, label: string, type = "text", required = false) => (
     <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1">{label}{required && " *"}</label>
+      <label className="block text-xs font-medium text-gray-500 mb-1">{label}{required && " *"}</label>
       <input
         name={name}
         type={type}
         required={required}
         step={type === "number" ? "0.01" : undefined}
-        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
       />
     </div>
   );
@@ -65,85 +63,94 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm"
       >
-        + Agregar producto
+        <span className="text-base leading-none">+</span>
+        <span>Agregar</span>
       </button>
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Nuevo producto</h2>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+          {/* Bottom sheet on mobile, centered modal on desktop */}
+          <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl max-h-[92vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <h2 className="text-base font-bold text-gray-900">Nuevo producto</h2>
+              <button
+                onClick={() => setOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"
+              >
+                ✕
+              </button>
             </div>
 
-            <form ref={formRef} onSubmit={handleSubmit} className="px-6 py-4 grid grid-cols-2 gap-4">
+            <form ref={formRef} onSubmit={handleSubmit} className="overflow-y-auto flex-1 px-5 py-4 flex flex-col gap-3">
+              {/* Image picker at top */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Feria</label>
-                <input name="feria" defaultValue="Canton" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tipo producto *</label>
-                <input
-                  name="tipo_producto"
-                  list="tipos-list"
-                  required
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <datalist id="tipos-list">
-                  {tipos.map((t) => <option key={t} value={t} />)}
-                </datalist>
-              </div>
-
-              <div className="col-span-2">
-                {field("producto", "Producto", "text", true)}
-              </div>
-              <div className="col-span-2">
-                {field("descripcion", "Descripción")}
-              </div>
-
-              {field("precio_usd", "Precio USD", "number")}
-              {field("moq", "MOQ", "number")}
-              {field("precio_ref_clp", "Precio ref. CLP", "number")}
-              {field("lugar_ref", "Lugar ref.")}
-
-              <div className="col-span-2">
-                {field("proveedor", "Proveedor")}
-              </div>
-              {field("pagina", "Página web")}
-              {field("email", "Email", "email")}
-              {field("sales", "Contacto ventas")}
-              {field("sku", "SKU")}
-
-              {/* Image upload */}
-              <div className="col-span-2">
-                <label className="block text-xs font-medium text-gray-600 mb-1">Foto</label>
-                <div className="flex items-center gap-4">
-                  <label className="cursor-pointer flex items-center gap-2 border border-dashed border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 transition-colors">
-                    <span>📷</span>
-                    <span>{imageFile ? imageFile.name : "Elegir imagen..."}</span>
-                    <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                  </label>
-                  {imagePreview && (
-                    <img src={imagePreview} alt="preview" className="h-16 w-16 object-cover rounded-lg border border-gray-200" />
+                <label className="block text-xs font-medium text-gray-500 mb-1">Foto</label>
+                <label className="block cursor-pointer">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="preview" className="w-full h-48 object-cover rounded-xl border border-gray-200" />
+                  ) : (
+                    <div className="w-full h-32 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-1 text-gray-400">
+                      <span className="text-2xl">📷</span>
+                      <span className="text-xs">Toca para elegir imagen</span>
+                    </div>
                   )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Feria</label>
+                  <input name="feria" defaultValue="Canton" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Tipo *</label>
+                  <input name="tipo_producto" list="tipos-list" required className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
+                  <datalist id="tipos-list">
+                    {tipos.map((t) => <option key={t} value={t} />)}
+                  </datalist>
                 </div>
               </div>
 
-              <div className="col-span-2 flex justify-end gap-3 pt-2 border-t border-gray-100 mt-2">
+              {field("producto", "Producto", "text", true)}
+              {field("descripcion", "Descripción")}
+
+              <div className="grid grid-cols-2 gap-3">
+                {field("precio_usd", "Precio USD", "number")}
+                {field("moq", "MOQ", "number")}
+                {field("precio_ref_clp", "Precio ref. CLP", "number")}
+                {field("lugar_ref", "Lugar ref.")}
+              </div>
+
+              {field("proveedor", "Proveedor")}
+
+              <div className="grid grid-cols-2 gap-3">
+                {field("pagina", "Página web")}
+                {field("email", "Email", "email")}
+                {field("sales", "Contacto ventas")}
+                {field("sku", "SKU")}
+              </div>
+
+              <div className="flex gap-3 pt-2 pb-1">
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                  className="flex-1 py-3 rounded-xl border border-gray-200 text-sm text-gray-600 font-medium"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
+                  className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
                 >
                   {loading ? "Guardando..." : "Guardar"}
                 </button>

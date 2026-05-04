@@ -51,6 +51,15 @@ export async function addProducto(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function updateFoto(id: number, fotoUrl: string) {
+  const { error } = await supabase
+    .from("canton_productos")
+    .update({ foto: fotoUrl })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+}
+
 export async function deleteProducto(id: number) {
   const { error } = await supabase.from("canton_productos").delete().eq("id", id);
   if (error) throw new Error(error.message);

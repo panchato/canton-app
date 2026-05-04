@@ -1,5 +1,5 @@
 import { getProductos, getTipos } from "./actions";
-import ProductosTable from "./ProductosTable";
+import ProductosGrid from "./ProductosGrid";
 import AddProductoForm from "./AddProductoForm";
 
 export const dynamic = "force-dynamic";
@@ -16,43 +16,45 @@ export default async function Home({
   ]);
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+    <main className="min-h-screen bg-gray-50 pb-24">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Lista de Precios — Cantón</h1>
-            <p className="text-sm text-gray-500 mt-1">{productos.length} productos</p>
+            <h1 className="text-lg font-bold text-gray-900 leading-tight">Lista Cantón</h1>
+            <p className="text-xs text-gray-400">{productos.length} productos</p>
           </div>
           <AddProductoForm tipos={tipos} />
         </div>
 
-        <div className="flex gap-2 flex-wrap mb-6">
-          <a
-            href="/"
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              !tipo || tipo === "todos"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
-            }`}
-          >
-            Todos
-          </a>
-          {tipos.map((t) => (
+        {/* Filter pills — horizontally scrollable */}
+        <div className="overflow-x-auto px-4 pb-3">
+          <div className="flex gap-2 w-max">
             <a
-              key={t}
-              href={`/?tipo=${encodeURIComponent(t)}`}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                tipo === t
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
+              href="/"
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                !tipo ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
               }`}
             >
-              {t}
+              Todos
             </a>
-          ))}
+            {tipos.map((t) => (
+              <a
+                key={t}
+                href={`/?tipo=${encodeURIComponent(t)}`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                  tipo === t ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {t}
+              </a>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <ProductosTable productos={productos} />
+      <div className="max-w-5xl mx-auto px-4 pt-4">
+        <ProductosGrid productos={productos} />
       </div>
     </main>
   );
