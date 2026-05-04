@@ -3,11 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { supabase, type Producto } from "@/lib/supabase";
 
-export async function getProductos(tipoFiltro?: string) {
+type SortKey = "producto" | "precio_usd" | "tipo_producto" | "proveedor";
+
+const VALID_SORTS: SortKey[] = ["producto", "precio_usd", "tipo_producto", "proveedor"];
+
+export async function getProductos(tipoFiltro?: string, sortBy?: string) {
+  const col: SortKey = VALID_SORTS.includes(sortBy as SortKey)
+    ? (sortBy as SortKey)
+    : "tipo_producto";
+
+  const nullsFirst = col === "precio_usd";
+
   let query = supabase
     .from("canton_productos")
     .select("*")
-    .order("tipo_producto")
+    .order(col, { nullsFirst })
     .order("producto");
 
   if (tipoFiltro && tipoFiltro !== "todos") {
