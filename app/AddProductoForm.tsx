@@ -59,7 +59,7 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
     }
   }
 
-  const inputClass = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50";
+  const inputClass = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50";
 
   return (
     <>
@@ -109,8 +109,8 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
                   <input name="feria" defaultValue="Canton" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Tipo *</label>
-                  <input name="tipo_producto" list="tipos-list" required placeholder="Ej: Mueble" className={inputClass} />
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
+                  <input name="tipo_producto" list="tipos-list" placeholder="Ej: Mueble" className={inputClass} />
                   <datalist id="tipos-list">
                     {tipos.map((t) => <option key={t} value={t} />)}
                   </datalist>
