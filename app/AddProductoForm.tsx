@@ -106,7 +106,7 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Feria</label>
-                  <input name="feria" defaultValue="Canton" className={inputClass} />
+                  <input name="feria" defaultValue="Yiwu" className={inputClass} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
