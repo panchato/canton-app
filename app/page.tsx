@@ -37,7 +37,7 @@ export default async function Home({
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-gray-900 leading-tight">Lista Cantón</h1>
+            <h1 className="text-lg font-bold text-gray-900 leading-tight">Lista Productos China</h1>
             <p className="text-xs text-gray-400">{productos.length} productos</p>
           </div>
           <div className="flex items-center gap-2">
