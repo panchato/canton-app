@@ -9,7 +9,7 @@ const SORT_OPTIONS = [
   { value: "tipo_producto", label: "Tipo" },
   { value: "producto",     label: "Nombre" },
   { value: "precio_usd",  label: "Precio" },
-  { value: "proveedor",   label: "Proveedor" },
+  { value: "proveedor",   label: "Vendedor" },
 ];
 
 export default async function Home({

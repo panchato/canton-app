@@ -153,7 +153,7 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Precio ref. CLP</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Precio Chile</label>
                   <input
                     name="precio_ref_clp"
                     type="number"
@@ -171,8 +171,8 @@ export default function AddProductoForm({ tipos }: { tipos: string[] }) {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Proveedor</label>
-                <input name="proveedor" placeholder="Nombre del proveedor" className={inputClass} />
+                <label className="block text-xs font-medium text-gray-500 mb-1">Vendedor</label>
+                <input name="proveedor" placeholder="Nombre del vendedor" className={inputClass} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">

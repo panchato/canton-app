@@ -126,11 +126,11 @@ function ProductoCard({ p }: { p: Producto }) {
           </div>
 
           {fmtPrice(p.precio_ref_clp, "$") && (
-            <p className="text-gray-500 text-xs">Ref. CLP: {fmtPrice(p.precio_ref_clp, "$")}</p>
+            <p className="text-gray-500 text-xs">Precio Chile: {fmtPrice(p.precio_ref_clp, "$")}</p>
           )}
 
           {p.proveedor && (
-            <p className="text-gray-400 text-xs truncate mt-0.5">{p.proveedor}</p>
+            <p className="text-gray-400 text-xs truncate mt-0.5">Vendedor: {p.proveedor}</p>
           )}
 
           {p.email && (
